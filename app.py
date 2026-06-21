@@ -78,7 +78,6 @@ db = get_db()
 # Main Header matches demo
 st.title("EE200: Audio Fingerprinting")
 st.markdown("<p style='color: #94a3b8; font-weight: 600; letter-spacing: 1px; font-size: 0.9rem;'>SIGNALS, SYSTEMS & NETWORKS</p>", unsafe_allow_html=True)
-st.write("Index a library of songs as spectrogram fingerprints, then identify any short clip against it.")
 
 tab_lib, tab_id, tab_batch = st.tabs(["♦ LIBRARY", "☉ IDENTIFY", "☷ BATCH"])
 
