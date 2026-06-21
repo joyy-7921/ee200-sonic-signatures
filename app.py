@@ -110,7 +110,9 @@ with tab_id:
     if os.path.exists(QUERIES_DIR):
         sample_clips = sorted([f for f in os.listdir(QUERIES_DIR) if f.endswith('.wav')])[:5]
     
-    selected_sample = None
+    if "selected_sample" not in st.session_state:
+        st.session_state.selected_sample = None
+
     if sample_clips:
         for clip in sample_clips:
             st.markdown(f"**{clip}**")
@@ -119,7 +121,7 @@ with tab_id:
                 st.audio(os.path.join(QUERIES_DIR, clip))
             with c2:
                 if st.button("Try", key=f"btn_{clip}", use_container_width=True):
-                    selected_sample = os.path.join(QUERIES_DIR, clip)
+                    st.session_state.selected_sample = os.path.join(QUERIES_DIR, clip)
     else:
         st.info("Sample clips are not available in the cloud deployment to save space. Please upload your own clip.")
                 
@@ -128,8 +130,10 @@ with tab_id:
         target_path = "temp_query" + os.path.splitext(uploaded_file.name)[1]
         with open(target_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-    elif selected_sample is not None:
-        target_path = selected_sample
+        st.session_state.selected_sample = None  # Clear sample if file uploaded
+    elif st.session_state.selected_sample is not None:
+        target_path = st.session_state.selected_sample
+        st.info(f"Using sample clip: **{os.path.basename(target_path)}**")
         
     if target_path and db:
         if st.button("Identify Song", type="primary"):
