@@ -106,15 +106,21 @@ with tab_id:
     uploaded_file = st.file_uploader("Upload a clip (WAV/MP3/FLAC/OGG)", type=['wav', 'mp3', 'ogg', 'flac'])
     
     st.markdown("#### Or try a sample clip:")
-    sample_clips = [f for f in os.listdir(QUERIES_DIR) if f.endswith('.wav')][:3]
-    cols = st.columns(len(sample_clips))
+    sample_clips = []
+    if os.path.exists(QUERIES_DIR):
+        sample_clips = [f for f in os.listdir(QUERIES_DIR) if f.endswith('.wav')][:3]
+    
     selected_sample = None
-    for i, clip in enumerate(sample_clips):
-        with cols[i]:
-            st.write(clip)
-            st.audio(os.path.join(QUERIES_DIR, clip))
-            if st.button(f"Try {clip}", key=f"btn_{clip}"):
-                selected_sample = os.path.join(QUERIES_DIR, clip)
+    if sample_clips:
+        cols = st.columns(len(sample_clips))
+        for i, clip in enumerate(sample_clips):
+            with cols[i]:
+                st.write(clip)
+                st.audio(os.path.join(QUERIES_DIR, clip))
+                if st.button(f"Try {clip}", key=f"btn_{clip}"):
+                    selected_sample = os.path.join(QUERIES_DIR, clip)
+    else:
+        st.info("Sample clips are not available in the cloud deployment to save space. Please upload your own clip.")
                 
     target_path = None
     if uploaded_file is not None:
