@@ -1,0 +1,21 @@
+# Audio files (too large for GitHub)
+songs/
+queries/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Notebook and report files (not needed for the app)
+*.ipynb
+*.html
+*.md
+solve_q3a.py
+make_queries.py
+EE200_finalproject_2026_demo_video.mp4
+
+# Temporary files created by app
+temp_query*
+temp_batch_*
+results.csv
