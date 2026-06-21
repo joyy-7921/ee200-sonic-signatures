@@ -112,12 +112,13 @@ with tab_id:
     
     selected_sample = None
     if sample_clips:
-        cols = st.columns(len(sample_clips))
-        for i, clip in enumerate(sample_clips):
-            with cols[i]:
-                st.write(clip)
+        for clip in sample_clips:
+            st.markdown(f"**{clip}**")
+            c1, c2 = st.columns([4, 1])
+            with c1:
                 st.audio(os.path.join(QUERIES_DIR, clip))
-                if st.button(f"Try {clip}", key=f"btn_{clip}"):
+            with c2:
+                if st.button("Try", key=f"btn_{clip}", use_container_width=True):
                     selected_sample = os.path.join(QUERIES_DIR, clip)
     else:
         st.info("Sample clips are not available in the cloud deployment to save space. Please upload your own clip.")
