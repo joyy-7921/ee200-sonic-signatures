@@ -6,218 +6,209 @@ import os
 import csv
 from fingerprinting import build_database, save_database, load_database, match_query
 
-st.set_page_config(page_title="Sonic Signatures", layout="wide", page_icon="🎵")
+st.set_page_config(page_title="EE200: Audio Fingerprinting", layout="wide", page_icon="🎵")
 
-# Custom CSS for Premium Glassmorphism UI
-st.markdown("""
+# Custom CSS for Cyan Theme matching Demo Video
+st.markdown('''
 <style>
-    /* Import modern font */
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
     
-    /* Main background */
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        background-color: #0e1117;
         color: #e2e8f0;
     }
     
-    /* Hide top header bar */
-    header {visibility: hidden;}
-
-    /* Glassmorphism for containers and sidebar */
-    [data-testid="stSidebar"] {
-        background: rgba(15, 23, 42, 0.6) !important;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    /* Header styling */
+    .st-emotion-cache-10trblm {
+        color: #06b6d4; /* Cyan Title */
     }
     
-    div[data-testid="stFileUploader"] {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px dashed rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 20px;
-        transition: all 0.3s ease;
+    /* Tabs styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
     }
-    div[data-testid="stFileUploader"]:hover {
-        border-color: #8b5cf6;
-        background: rgba(139, 92, 246, 0.05);
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: transparent;
+        border-radius: 4px 4px 0 0;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
     }
-
-    /* Vibrant Buttons */
+    .stTabs [aria-selected="true"] {
+        border-bottom-color: #06b6d4 !important;
+        color: #06b6d4 !important;
+    }
+    
+    /* Cyan Buttons */
     .stButton > button {
-        background: linear-gradient(90deg, #8b5cf6 0%, #d946ef 100%) !important;
-        color: white !important;
+        background-color: #06b6d4 !important;
+        color: #0f172a !important;
         border: none !important;
-        border-radius: 8px !important;
-        padding: 10px 24px !important;
         font-weight: 600 !important;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important;
+        transition: all 0.2s ease !important;
     }
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(217, 70, 239, 0.6) !important;
+        background-color: #22d3ee !important;
+        transform: translateY(-1px);
     }
-
-    /* Titles and headers */
-    h1, h2, h3 {
-        background: -webkit-linear-gradient(45deg, #a78bfa, #f472b6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 700;
-    }
-
-    /* Success/Error Messages */
-    div[data-testid="stCodeBlock"] {
-        background: rgba(0,0,0,0.4) !important;
-    }
-    .stSuccess {
-        background: rgba(16, 185, 129, 0.1) !important;
-        border: 1px solid rgba(16, 185, 129, 0.3) !important;
-        color: #34d399 !important;
-    }
-    .stError {
-        background: rgba(239, 68, 68, 0.1) !important;
-        border: 1px solid rgba(239, 68, 68, 0.3) !important;
-        color: #f87171 !important;
-    }
+    
+    /* Hide default sidebar toggle if empty */
+    [data-testid="collapsedControl"] { display: none; }
 </style>
-""", unsafe_allow_html=True)
-
+''', unsafe_allow_html=True)
 
 DB_FILE = "song_db.pkl"
 SONGS_DIR = "songs"
+QUERIES_DIR = "queries"
 
 @st.cache_resource
 def get_db():
     if os.path.exists(DB_FILE):
         return load_database(DB_FILE)
-    else:
-        st.warning("Database not found. Please build the database first.")
-        return {}
-
-st.title("🎵 Sonic Signatures - Audio Fingerprinting App")
+    return {}
 
 db = get_db()
-st.sidebar.write(f"Database contains hashes for {len(set([item[0] for items in db.values() for item in items])) if db else 0} songs.")
 
-if st.sidebar.button("Rebuild Database"):
-    with st.spinner("Building database... This may take a couple minutes."):
-        new_db = build_database(SONGS_DIR)
-        save_database(new_db, DB_FILE)
-        get_db.clear()  # Clear the cache so it reloads the newly built database
-        st.success("Database built successfully! Please refresh or click the button again.")
-        st.rerun() # Automatically refresh the page
+# Main Header matches demo
+st.title("EE200: Audio Fingerprinting")
+st.markdown("<p style='color: #94a3b8; font-weight: 600; letter-spacing: 1px; font-size: 0.9rem;'>SIGNALS, SYSTEMS & NETWORKS • PROJECT DEMO</p>", unsafe_allow_html=True)
+st.write("Index a library of songs as spectrogram fingerprints, then identify any short clip against it.")
 
-mode = st.sidebar.radio("Select Mode", ["Single-Clip Mode", "Batch Mode"])
+tab_lib, tab_id, tab_batch = st.tabs(["♦ LIBRARY", "☉ IDENTIFY", "☷ BATCH"])
 
-if mode == "Single-Clip Mode":
-    st.header("Identify a Single Clip")
-    uploaded_file = st.file_uploader("Upload an audio clip (WAV/MP3)", type=['wav', 'mp3', 'ogg'])
+with tab_lib:
+    st.subheader("In the Database")
+    st.info("Song indexing is managed by the admin. Drop a clip in the Identify tab to test the library.")
     
-    if uploaded_file is not None:
-        if not db:
-            st.error("Database is empty. Please rebuild it from the sidebar first.")
-        else:
-            if st.button("Identify Song"):
-                # Save temp file
-                temp_path = os.path.join("temp_query" + os.path.splitext(uploaded_file.name)[1])
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                    
-                with st.spinner("Analyzing..."):
-                    best_song, scores, Sxx_log, peaks, offset_hist = match_query(temp_path, db)
-                    
-                st.subheader("Prediction")
-                if best_song == "No match found":
-                    st.error(best_song)
-                else:
-                    st.success(f"Matched Song: **{best_song}**")
-                    
-                st.subheader("Intermediate Steps")
-                col1, col2 = st.columns(2)
+    if st.button("Rebuild Database Index"):
+        with st.spinner("Indexing songs..."):
+            new_db = build_database(SONGS_DIR)
+            save_database(new_db, DB_FILE)
+            get_db.clear()
+            st.success("Rebuilt successfully!")
+            st.rerun()
+            
+    if db:
+        song_names = set(name for items in db.values() for name, _ in items)
+        st.metric("Total Indexed Songs", len(song_names))
+        
+        cols = st.columns(3)
+        for i, s_name in enumerate(sorted(list(song_names))):
+            with cols[i % 3]:
+                st.markdown(f'''
+                <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #06b6d4;">
+                    <h4 style="margin:0; color:#e2e8f0;">{s_name}</h4>
+                    <p style="margin:0; font-size:0.8rem; color:#94a3b8;">Indexed and hashed</p>
+                </div>
+                ''', unsafe_allow_html=True)
+    else:
+        st.warning("Database empty.")
+
+with tab_id:
+    st.markdown("### Upload a clip to identify")
+    uploaded_file = st.file_uploader("Upload a clip (WAV/MP3/FLAC/OGG)", type=['wav', 'mp3', 'ogg', 'flac'])
+    
+    st.markdown("#### Or try a sample clip:")
+    sample_clips = [f for f in os.listdir(QUERIES_DIR) if f.endswith('.wav')][:3]
+    cols = st.columns(len(sample_clips))
+    selected_sample = None
+    for i, clip in enumerate(sample_clips):
+        with cols[i]:
+            st.write(clip)
+            st.audio(os.path.join(QUERIES_DIR, clip))
+            if st.button(f"Try {clip}", key=f"btn_{clip}"):
+                selected_sample = os.path.join(QUERIES_DIR, clip)
                 
-                with col1:
-                    st.write("**Spectrogram & Constellation**")
+    target_path = None
+    if uploaded_file is not None:
+        target_path = "temp_query" + os.path.splitext(uploaded_file.name)[1]
+        with open(target_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+    elif selected_sample is not None:
+        target_path = selected_sample
+        
+    if target_path and db:
+        if st.button("Identify Song", type="primary"):
+            with st.spinner("Analyzing audio features..."):
+                best_song, scores, Sxx_log, peaks, offset_hist = match_query(target_path, db)
+                
+            st.markdown("---")
+            if best_song == "No match found":
+                st.error("No match found in the database.")
+            else:
+                top_score = scores[best_song]
+                st.success(f"### Matched: {best_song} \n**Confidence Score:** {top_score} hashes matched")
+                
+                st.markdown("### Feature Extraction & Matching")
+                c1, c2 = st.columns(2)
+                
+                with c1:
+                    st.write("**Query Spectrogram & Constellation**")
                     if Sxx_log is not None and peaks is not None:
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        ax.imshow(Sxx_log, aspect='auto', origin='lower', cmap='viridis')
-                        
-                        # Plot peaks
-                        time_indices, freq_indices = zip(*peaks)
-                        ax.scatter(time_indices, freq_indices, c='red', s=10, marker='x')
-                        
-                        ax.set_ylabel('Frequency Index')
-                        ax.set_xlabel('Time Index')
+                        fig, ax = plt.subplots(figsize=(8, 5))
+                        ax.imshow(Sxx_log, aspect='auto', origin='lower', cmap='magma')
+                        t_idx, f_idx = zip(*peaks)
+                        ax.scatter(t_idx, f_idx, c='#06b6d4', s=15, marker='o') # Cyan dots
+                        ax.set_ylabel('Frequency')
+                        ax.set_xlabel('Time')
+                        fig.patch.set_facecolor('#0e1117')
+                        ax.set_facecolor('#0e1117')
+                        ax.tick_params(colors='white')
+                        ax.xaxis.label.set_color('white')
+                        ax.yaxis.label.set_color('white')
                         st.pyplot(fig)
                         
-                with col2:
-                    st.write("**Offset Histogram**")
+                with c2:
+                    st.write("**Offset Agreement Scatter (Reconstruction)**")
                     if offset_hist is not None:
                         unique_offsets, counts = offset_hist
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        
-                        # Use vlines/scatter instead of bar for better visibility across huge ranges
-                        ax.vlines(unique_offsets, 0, counts, color='blue', alpha=0.5, linewidth=2)
-                        ax.scatter(unique_offsets, counts, color='blue', s=10)
-                        
-                        # Highlight the maximum peak
+                        fig, ax = plt.subplots(figsize=(8, 5))
+                        ax.scatter(unique_offsets, counts, color='#06b6d4', alpha=0.6, s=20)
                         max_idx = np.argmax(counts)
-                        ax.scatter(unique_offsets[max_idx], counts[max_idx], color='red', s=50, label='True Offset Match')
-                        
-                        ax.set_xlabel('Time Offset (t_song - t_query)')
-                        ax.set_ylabel('Number of Matching Hashes')
-                        ax.set_title(f'Histogram for {best_song}')
+                        ax.scatter(unique_offsets[max_idx], counts[max_idx], color='#ef4444', s=80, label='Alignment Spike')
+                        ax.set_xlabel('Time Offset')
+                        ax.set_ylabel('Matches')
                         ax.legend()
+                        fig.patch.set_facecolor('#0e1117')
+                        ax.set_facecolor('#0e1117')
+                        ax.tick_params(colors='white')
+                        ax.xaxis.label.set_color('white')
+                        ax.yaxis.label.set_color('white')
                         st.pyplot(fig)
                         
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
+            if uploaded_file is not None and os.path.exists(target_path):
+                os.remove(target_path)
 
-elif mode == "Batch Mode":
-    st.header("Batch Process Queries")
-    uploaded_files = st.file_uploader("Upload multiple query clips", type=['wav', 'mp3', 'ogg'], accept_multiple_files=True)
+with tab_batch:
+    st.markdown("### Batch Process Queries")
+    batch_files = st.file_uploader("Upload multiple query clips", type=['wav', 'mp3', 'ogg'], accept_multiple_files=True)
     
-    if uploaded_files and db:
-        if st.button("Process Batch"):
+    if batch_files and db:
+        if st.button("Run batch", type="primary"):
             results = []
+            pbar = st.progress(0)
             
-            # Create a progress bar
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            for i, uploaded_file in enumerate(uploaded_files):
-                status_text.text(f"Processing {uploaded_file.name}...")
-                temp_path = os.path.join("temp_batch_" + uploaded_file.name)
+            for i, uf in enumerate(batch_files):
+                tp = "temp_batch_" + uf.name
+                with open(tp, "wb") as f:
+                    f.write(uf.getbuffer())
+                b_song, _, _, _, _ = match_query(tp, db)
+                pred = b_song if b_song != "No match found" else "UNKNOWN"
+                results.append({"filename": uf.name, "prediction": pred})
+                os.remove(tp)
+                pbar.progress((i + 1) / len(batch_files))
                 
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                    
-                best_song, _, _, _, _ = match_query(temp_path, db)
-                
-                prediction = best_song if best_song != "No match found" else "UNKNOWN"
-                results.append({"filename": uploaded_file.name, "prediction": prediction})
-                
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-                    
-                progress_bar.progress((i + 1) / len(uploaded_files))
-                
-            status_text.text("Batch processing complete!")
-            
-            # Write to results.csv
             df = pd.DataFrame(results)
-            csv_path = "results.csv"
-            df.to_csv(csv_path, index=False)
+            df.to_csv("results.csv", index=False)
             
-            st.success(f"Results saved to {csv_path}")
-            st.dataframe(df)
+            # Styled dataframe
+            st.dataframe(df.style.applymap(lambda x: "color: #06b6d4;" if x != "UNKNOWN" else "", subset=['prediction']))
             
-            # Provide download link
-            with open(csv_path, "rb") as f:
+            with open("results.csv", "rb") as f:
                 st.download_button("Download results.csv", f, file_name="results.csv", mime="text/csv")
