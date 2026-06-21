@@ -77,7 +77,7 @@ db = get_db()
 
 # Main Header matches demo
 st.title("EE200: Audio Fingerprinting")
-st.markdown("<p style='color: #94a3b8; font-weight: 600; letter-spacing: 1px; font-size: 0.9rem;'>SIGNALS, SYSTEMS & NETWORKS • PROJECT DEMO</p>", unsafe_allow_html=True)
+st.markdown("<p style='color: #94a3b8; font-weight: 600; letter-spacing: 1px; font-size: 0.9rem;'>SIGNALS, SYSTEMS & NETWORKS</p>", unsafe_allow_html=True)
 st.write("Index a library of songs as spectrogram fingerprints, then identify any short clip against it.")
 
 tab_lib, tab_id, tab_batch = st.tabs(["♦ LIBRARY", "☉ IDENTIFY", "☷ BATCH"])
@@ -85,14 +85,6 @@ tab_lib, tab_id, tab_batch = st.tabs(["♦ LIBRARY", "☉ IDENTIFY", "☷ BATCH"
 with tab_lib:
     st.subheader("In the Database")
     st.info("Song indexing is managed by the admin. Drop a clip in the Identify tab to test the library.")
-    
-    if st.button("Rebuild Database Index"):
-        with st.spinner("Indexing songs..."):
-            new_db = build_database(SONGS_DIR)
-            save_database(new_db, DB_FILE)
-            get_db.clear()
-            st.success("Rebuilt successfully!")
-            st.rerun()
             
     if db:
         song_names = set(name for items in db.values() for name, _ in items)
