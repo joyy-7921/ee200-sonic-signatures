@@ -145,9 +145,26 @@ with tab_id:
                 st.error("No match found in the database.")
             else:
                 top_score = scores[best_song]
-                st.success(f"### Matched: {best_song} \n**Confidence Score:** {top_score} hashes matched")
+                st.success(f"### Matched: {best_song} \n**Candidate Score:** {top_score} hashes matched")
                 
                 st.markdown("### Feature Extraction & Matching")
+                
+                st.write("**Top Candidates Score Distribution**")
+                sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:5]
+                if sorted_scores:
+                    s_names, s_vals = zip(*sorted_scores)
+                    fig_bar, ax_bar = plt.subplots(figsize=(10, 3))
+                    ax_bar.barh(s_names[::-1], s_vals[::-1], color='#06b6d4', alpha=0.8)
+                    ax_bar.set_xlabel('Matching Hashes')
+                    fig_bar.patch.set_facecolor('#0e1117')
+                    ax_bar.set_facecolor('#0e1117')
+                    ax_bar.tick_params(colors='white')
+                    ax_bar.xaxis.label.set_color('white')
+                    ax_bar.yaxis.label.set_color('white')
+                    for spine in ax_bar.spines.values():
+                        spine.set_edgecolor('#334155')
+                    st.pyplot(fig_bar)
+
                 c1, c2 = st.columns(2)
                 
                 with c1:
