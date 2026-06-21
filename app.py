@@ -6,7 +6,89 @@ import os
 import csv
 from fingerprinting import build_database, save_database, load_database, match_query
 
-st.set_page_config(page_title="Zapp tain America", layout="wide")
+st.set_page_config(page_title="Zapp tain America", layout="wide", page_icon="🎵")
+
+# Custom CSS for Premium Glassmorphism UI
+st.markdown("""
+<style>
+    /* Import modern font */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Outfit', sans-serif;
+    }
+    
+    /* Main background */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        color: #e2e8f0;
+    }
+    
+    /* Hide top header bar */
+    header {visibility: hidden;}
+
+    /* Glassmorphism for containers and sidebar */
+    [data-testid="stSidebar"] {
+        background: rgba(15, 23, 42, 0.6) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    div[data-testid="stFileUploader"] {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    div[data-testid="stFileUploader"]:hover {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    /* Vibrant Buttons */
+    .stButton > button {
+        background: linear-gradient(90deg, #8b5cf6 0%, #d946ef 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(217, 70, 239, 0.6) !important;
+    }
+
+    /* Titles and headers */
+    h1, h2, h3 {
+        background: -webkit-linear-gradient(45deg, #a78bfa, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    /* Success/Error Messages */
+    div[data-testid="stCodeBlock"] {
+        background: rgba(0,0,0,0.4) !important;
+    }
+    .stSuccess {
+        background: rgba(16, 185, 129, 0.1) !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        color: #34d399 !important;
+    }
+    .stError {
+        background: rgba(239, 68, 68, 0.1) !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        color: #f87171 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 
 DB_FILE = "song_db.pkl"
 SONGS_DIR = "songs"
