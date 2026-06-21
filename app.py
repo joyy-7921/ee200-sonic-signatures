@@ -6,7 +6,7 @@ import os
 import csv
 from fingerprinting import build_database, save_database, load_database, match_query
 
-st.set_page_config(page_title="Zapp tain America", layout="wide", page_icon="🎵")
+st.set_page_config(page_title="Sonic Signatures", layout="wide", page_icon="🎵")
 
 # Custom CSS for Premium Glassmorphism UI
 st.markdown("""
@@ -101,7 +101,7 @@ def get_db():
         st.warning("Database not found. Please build the database first.")
         return {}
 
-st.title("🎵 Zapp tain America - Audio Fingerprinting App")
+st.title("🎵 Sonic Signatures - Audio Fingerprinting App")
 
 db = get_db()
 st.sidebar.write(f"Database contains hashes for {len(set([item[0] for items in db.values() for item in items])) if db else 0} songs.")
