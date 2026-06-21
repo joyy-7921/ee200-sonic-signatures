@@ -227,7 +227,10 @@ with tab_batch:
             df.to_csv("results.csv", index=False)
             
             # Styled dataframe
-            st.dataframe(df.style.applymap(lambda x: "color: #06b6d4;" if x != "UNKNOWN" else "", subset=['prediction']))
+            if hasattr(df.style, "map"):
+                st.dataframe(df.style.map(lambda x: "color: #06b6d4;" if x != "UNKNOWN" else "", subset=['prediction']))
+            else:
+                st.dataframe(df.style.applymap(lambda x: "color: #06b6d4;" if x != "UNKNOWN" else "", subset=['prediction']))
             
             with open("results.csv", "rb") as f:
                 st.download_button("Download results.csv", f, file_name="results.csv", mime="text/csv")
