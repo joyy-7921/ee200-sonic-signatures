@@ -108,7 +108,7 @@ with tab_id:
     st.markdown("#### Or try a sample clip:")
     sample_clips = []
     if os.path.exists(QUERIES_DIR):
-        sample_clips = [f for f in os.listdir(QUERIES_DIR) if f.endswith('.wav')][:3]
+        sample_clips = sorted([f for f in os.listdir(QUERIES_DIR) if f.endswith('.wav')])[:5]
     
     selected_sample = None
     if sample_clips:
